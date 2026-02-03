@@ -100,13 +100,26 @@ const initDigitUI = async () => {
   );
 };
 
-/* --- Execution Logic --- */
-const stateCode = window?.globalConfigs?.getConfig("STATE_LEVEL_TENANT_ID") || "pb";
+/* --- Optimized Execution Logic --- */
+const startApp = async () => {
+  // 1. Core initialization
+  await initLibraries();
 
-// 1. Set storage synchronously 
-initTokens(stateCode);
+  // 2. Get Configs
+  const stateCode = window?.globalConfigs?.getConfig("STATE_LEVEL_TENANT_ID") || "pb";
+  const params = new URLSearchParams(window.location.search);
+  const currentLocale = params.get("locale") || localStorage.getItem("Digit.locale") || "en_ET";
 
-// 2. Initialize libraries, then trigger UI setup
-initLibraries().then(() => {
-  initDigitUI();
-});
+  // 3. Set Session/Local Storage (So the core module sees the correct state)
+  initTokens(stateCode);
+
+  // 4. Pre-fetch translations (Prevents flickering)
+  if (window.Digit?.LocalizationService) {
+    await window.Digit.LocalizationService.changeLanguage(currentLocale, stateCode);
+  }
+
+  // 5. Mount the app
+  await initDigitUI(); 
+};
+
+startApp();
