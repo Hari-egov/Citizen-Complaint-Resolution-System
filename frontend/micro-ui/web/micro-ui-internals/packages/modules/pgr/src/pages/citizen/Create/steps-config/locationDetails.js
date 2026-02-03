@@ -39,14 +39,29 @@ export const locationDetails = {
         "maxlength": 64
       }
     },
-   {
-      "type": "component",
-      "isMandatory": true,
-      "component": "SelectAddress",
+    {
       "key": "SelectAddress",
-      "label": "CS_ADDCOMPLAINT_COMPLAINT_LOCATION",
+      "type": "boundary",
+      "inline": false,
+      "disable": false,
       "populators": {
-        "name": "SelectAddress"
+        validation: { required: true },
+        error: "CORE_COMMON_REQUIRED_ERRMSG",
+        "fieldPairClassName": "boundary-filter-label-left-align",
+        "name": "boundaryComponent",
+        "levelConfig": {
+          "lowestLevel": "zone",
+          "highestLevel": "region",
+          isSingleSelect: ["zone", "region"]
+        },
+        "layoutConfig": {
+          "isDropdownLayoutHorizontal": true,
+          "isLabelFieldLayoutHorizontal": true
+
+        },
+        "hierarchyType": "ADMIN",
+        "noCardStyle": false,
+        "module": "CMS-BOUNDARY"
       }
     },
   /*  {
