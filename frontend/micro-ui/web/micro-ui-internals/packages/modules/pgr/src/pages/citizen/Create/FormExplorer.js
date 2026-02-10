@@ -208,7 +208,7 @@ const FormExplorer = () => {
         action: "APPLY",
         verificationDocuments: Array.isArray(formData?.ComplaintImagesPoint)
           ? formData.ComplaintImagesPoint.map((image) => ({
-            documentType: "ATTACHMENT",
+            documentType: "PHOTO",
             fileStoreId: image,
             documentUid: "",
             additionalDetails: {},
