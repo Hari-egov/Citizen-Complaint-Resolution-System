@@ -92,40 +92,29 @@ const CreateComplaintForm = ({
   }, [sessionFormData?.complaintUser?.code]);
 
 
-function getUniqueMenuPaths(data) {
-  const seenMenuPaths = new Set();
-  const uniqueItems = [];
+  function getUniqueMenuPaths(data) {
+    const seenMenuPaths = new Set();
+    const uniqueItems = [];
 
-  for (const item of data) {
-    if (!seenMenuPaths.has(item.menuPath)) {
-      seenMenuPaths.add(item.menuPath);
-      uniqueItems.push({ 
-        ...item, 
-        i18nKey: "SERVICEDEFS_" + item.menuPath.toUpperCase().replace(/[ -]/g, "_"),
-        name: item.menuPath,  // Add name property for dropdown
-        code: item.menuPath    // Add code property
-      });
+    for (const item of data) {
+      if (!seenMenuPaths.has(item.menuPath)) {
+        seenMenuPaths.add(item.menuPath);
+        uniqueItems.push({ ...item, i18nKey: "SERVICEDEFS_" + item.menuPath.toUpperCase().replace(/[ -]/g, "_") });
+      }
     }
+
+    return uniqueItems;
   }
 
-  return uniqueItems;
-}
+  function getSubTypesByDepartment(baseItem, allItems) {
 
-function getSubTypesByMenuPath(selectedMenuPath, allItems) {
-  if (!selectedMenuPath || !Array.isArray(allItems)) {
-    console.warn("Invalid selectedMenuPath or allItems");
-    return [];
+    if (!baseItem || !baseItem.department || !Array.isArray(allItems)) {
+      console.warn("Invalid baseItem or allItems");
+      return [];
+    }
+
+    return allItems.filter(item => item.menuPath === baseItem.menuPath).map((item) => ({ ...item, i18nKey: "SERVICEDEFS_" + item.serviceCode.toUpperCase() }));
   }
-
-  return allItems
-    .filter(item => item.menuPath === selectedMenuPath)
-    .map((item) => ({ 
-      ...item, 
-      i18nKey: "SERVICEDEFS_" + item.serviceCode.toUpperCase(),
-      name: item.name,
-      code: item.serviceCode
-    }));
-}
 
 
 
@@ -303,50 +292,55 @@ function getSubTypesByMenuPath(selectedMenuPath, allItems) {
   const prevSubTypeRef = React.useRef([]);
   const prevCityRef = React.useRef(null);
 
- const onFormValueChange = (setValue, formData, formState, reset, setError, clearErrors) => {
-  const selectedComplaintType = formData?.SelectComplaintType;
-  
-  // Get the menuPath from selected item
-  const selectedMenuPath = selectedComplaintType?.menuPath || selectedComplaintType?.code;
-  
-  // Use menuPath for filtering, not department
-  const newSubTypes = getSubTypesByMenuPath(selectedMenuPath, serviceDefs);
-  
-  // Compare previous and new subtype list
-  const prevCodes = prevSubTypeRef.current.map(s => s.code).sort().join(",");
-  const newCodes = newSubTypes.map(s => s.code).sort().join(",");
+  const onFormValueChange = (setValue, formData, formState, reset, setError, clearErrors) => {
 
-  if (prevCodes !== newCodes) {
-    prevSubTypeRef.current = newSubTypes;
-    setSubType(newSubTypes);
-  }
+    const selectedComplaintType = formData?.SelectComplaintType;
+    const newSubTypes = getSubTypesByDepartment(selectedComplaintType, serviceDefs);
+    // const newCity = formData.SelectCity?.code;
 
-  const newCityCode = formData.SelectCity?.code;
-  if (newCityCode && prevCityRef.current !== newCityCode) {
-    prevCityRef.current = newCityCode;
-    setSelectedCity(newCityCode);
-  }
+    // Compare previous and new subtype list
+    const prevCodes = prevSubTypeRef.current.map(s => s.code).sort().join(",");
+    const newCodes = newSubTypes.map(s => s.code).sort().join(",");
 
-  const selectedUser = formData?.complaintUser?.code;
-  const prevSelectedUser = sessionFormData?.complaintUser?.code;
-
-  // Only update if complaint user selection has changed
-  if (selectedUser !== prevSelectedUser) {
-    const updatedData = { ...formData };
-
-    if (selectedUser === "MYSELF") {
-      updatedData.ComplainantName = user?.info?.name || "";
-      updatedData.ComplainantContactNumber = user?.info?.mobileNumber || "";
-    } else if (selectedUser === "ANOTHER_USER") {
-      updatedData.ComplainantName = "";
-      updatedData.ComplainantContactNumber = "";
+    if (prevCodes !== newCodes) {
+      prevSubTypeRef.current = newSubTypes;
+      setSubType(newSubTypes);
     }
 
-    setValue("ComplainantName", updatedData.ComplainantName);
-    setValue("ComplainantContactNumber", updatedData.ComplainantContactNumber);
-    setSessionFormData(updatedData);
-  }
-};
+
+
+    // --- New logic for localities ---
+    const newCityCode = formData.SelectCity?.code;
+    if (newCityCode && prevCityRef.current !== newCityCode) {
+      prevCityRef.current = newCityCode;
+
+      setSelectedCity(newCityCode);
+
+    }
+
+
+    const selectedUser = formData?.complaintUser?.code;
+    const prevSelectedUser = sessionFormData?.complaintUser?.code;
+
+
+
+    // Only update if complaint user selection has changed
+    if (selectedUser !== prevSelectedUser) {
+      const updatedData = { ...formData };
+
+      if (selectedUser === "MYSELF") {
+        updatedData.ComplainantName = user?.info?.name || "";
+        updatedData.ComplainantContactNumber = user?.info?.mobileNumber || "";
+      } else if (selectedUser === "ANOTHER_USER") {
+        updatedData.ComplainantName = "";
+        updatedData.ComplainantContactNumber = "";
+      }
+
+      setValue("ComplainantName", updatedData.ComplainantName);
+      setValue("ComplainantContactNumber", updatedData.ComplainantContactNumber);
+      setSessionFormData(updatedData);
+    }
+  };
 
 
   const handleToastClose = () => {
