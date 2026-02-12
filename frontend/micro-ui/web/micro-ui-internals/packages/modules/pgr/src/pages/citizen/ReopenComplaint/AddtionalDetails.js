@@ -27,12 +27,33 @@ const AddtionalDetails = (props) => {
   }, [appState.complaints, props.history]);
 
   const updateComplaint = useCallback(
-    async (complaintDetails) => {
-      await dispatch(updateComplaints(complaintDetails));
-      history.push(`${props.match.path}/response/${id}`);
-    },
-    [dispatch]
-  );
+  async (complaintDetails) => {
+    // Wait for the server to finish
+    await dispatch(updateComplaints(complaintDetails));
+    
+    // Use parentRoute to ensure you go to /citizen/pgr/response
+    // instead of staying inside the /reopen/ sub-route
+    history.push(`${props.parentRoute}/response`);
+  },
+  [dispatch, props.parentRoute, history]
+);
+
+function reopenComplaint() {
+  let reopenDetails = Digit.SessionStorage.get(`reopen.${id}`);
+  if (complaintDetails) {
+    complaintDetails.workflow = getUpdatedWorkflow(reopenDetails, "REOPEN");
+    complaintDetails.service.additionalDetail = {
+      REOPEN_REASON: reopenDetails.reason,
+    };
+    
+    // Call the async update
+    updateComplaint({ 
+      service: complaintDetails.service, 
+      workflow: complaintDetails.workflow 
+    });
+  }
+  // REMOVED the <Redirect /> here as it was causing the crash/loop
+}
 
   const getUpdatedWorkflow = (reopenDetails, type) => {
     switch (type) {
@@ -48,28 +69,7 @@ const AddtionalDetails = (props) => {
     }
   };
 
-  function reopenComplaint() {
-    let reopenDetails = Digit.SessionStorage.get(`reopen.${id}`);
-    if (complaintDetails) {
-      complaintDetails.workflow = getUpdatedWorkflow(
-        reopenDetails,
-        // complaintDetails,
-        "REOPEN"
-      );
-      complaintDetails.service.additionalDetail = {
-        REOPEN_REASON: reopenDetails.reason,
-      };
-      updateComplaint({ service: complaintDetails.service, workflow: complaintDetails.workflow });
-    }
-    return (
-      <Redirect
-        to={{
-          pathname: `${props.parentRoute}/response`,
-          state: { complaintDetails },
-        }}
-      />
-    );
-  }
+
 
   function textInput(e) {
     // setDetails(e.target.value);

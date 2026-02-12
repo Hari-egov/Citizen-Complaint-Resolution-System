@@ -1,7 +1,7 @@
 [
     {
         "code": "hrms.employee.create.notification",
-        "message": "Hi $employeename, Welcome to mSeva. Your profile has been successfully set-up : Username - $username Password - $password, Thank you.",
+        "message": "Hi $employeename, Welcome to semi. Your profile has been successfully set-up : Username - $username Password - $password, Thank you.",
         "module": "egov-hrms",
         "locale": "default"
     },

@@ -16,22 +16,28 @@ const SelectRating = ({ parentRoute }) => {
   const updateComplaint = useCallback((complaintDetails) => dispatch(updateComplaints(complaintDetails)), [dispatch]);
   const [submitError, setError] = useState(false)
   
-  function log(data) {
-    if (complaintDetails && data.rating > 0 ) {
-      complaintDetails.service.rating = data.rating;
-      complaintDetails.service.additionalDetail = data.CS_FEEDBACK_WHAT_WAS_GOOD.join(",");
-      complaintDetails.workflow = {
-        action: "RATE",
-        comments: data.comments,
-        verificationDocuments: [],
-      };
-      updateComplaint({ service: complaintDetails.service, workflow: complaintDetails.workflow });
-      history.push(`${parentRoute}/response`);
-    }
-    else{
-      setError(true)
-    }
+ // 1. Add "async" here
+// 1. Add "async"
+async function log(data) {
+  if (complaintDetails && data.rating > 0 ) {
+    complaintDetails.service.rating = data.rating;
+    complaintDetails.service.additionalDetail = data.CS_FEEDBACK_WHAT_WAS_GOOD.join(",");
+    complaintDetails.workflow = {
+      action: "RATE",
+      comments: data.comments,
+      verificationDocuments: [],
+    };
+    
+    // 2. Add "await" here
+    await updateComplaint({ service: complaintDetails.service, workflow: complaintDetails.workflow });
+    
+    // 3. The redirect now only happens AFTER the update is done
+    history.push(`${parentRoute}/response`);
   }
+  else{
+    setError(true)
+  }
+}
 
   const config = {
     texts: {
