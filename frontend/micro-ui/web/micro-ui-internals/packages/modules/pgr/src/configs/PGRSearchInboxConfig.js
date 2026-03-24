@@ -139,7 +139,7 @@ const PGRSearchInboxConfig = () => {
                     links: [
                         {
                             text: "ES_PGR_NEW_COMPLAINT",
-                            url: "/employee/pgr/create-complaint",
+                            url: "/employee/pgr/complaint/create",
                             roles: ["SUPERUSER", "PGR-ADMIN", "PGR_ADMIN", "HELPDESK_USER"],
                             hyperlink: true,
                         },

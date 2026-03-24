@@ -16,8 +16,8 @@ export const CreateComplaintConfig = {
               populators: {
                 name: "ComplainantContactNumber",
                 error: "CORE_COMMON_MOBILE_ERROR",
-                componentInFront: "+251",
-                prefix:"+251",
+                // componentInFront: "+91",
+                // prefix:"+91",
                 validation: {
                   required: true,
                   // minLength: 10,
@@ -39,7 +39,7 @@ export const CreateComplaintConfig = {
                 error: "CORE_COMMON_REQUIRED_ERRMSG",
                 validation: {
                   required: true,
-                  pattern: /^(?!.*[ _-]{2})(?!^[\s_-])(?!.*[\s_-]$)(?=^[A-Za-z\u1200-\u137F][A-Za-z0-9\u1200-\u137F _\-\(\)]{4,29}$)^.*$/
+                  pattern: /^(?!.*[ _-]{2})(?!^[\s_-])(?!.*[\s_-]$)(?=^[A-Za-z][A-Za-z0-9 _\-\(\)\.]{3,29}$)^.*$/,
                 }
               },
             },
@@ -82,7 +82,55 @@ export const CreateComplaintConfig = {
 
           ],
         },
-
+        // {
+        //   head: "CS_COMPLAINT_DETAILS_COMPLAINT_DETAILS",
+        //   body: [
+        //     // {
+        //     //   isMandatory: true,
+        //     //   key: "SelectComplaintType",
+        //     //   type: "dropdown",
+        //     //   label: "CS_COMPLAINT_DETAILS_COMPLAINT_TYPE",
+        //     //   disable: false,
+        //     //   preProcess : {
+        //     //     updateDependent : ["populators.options"]
+        //     //   },
+        //     //   populators: {
+        //     //     name: "SelectComplaintType",
+        //     //     optionsKey: "i18nKey",
+        //     //     error: "CORE_COMMON_REQUIRED_ERRMSG",
+        //     //   },
+        //     // },
+        //     // {
+        //     //   inline: true,
+        //     //   label: "CS_COMPLAINT_DETAILS_COMPLAINT_DATE",
+        //     //   isMandatory: true,
+        //     //   key: "ComplaintDate",
+        //     //   type: "date", // Input type is date picker
+        //     //   disable: false,
+        //     //   preProcess : {
+        //     //     updateDependent : ["populators.validation.max"]
+        //     //   },
+        //     //   populators: {
+        //     //     name: "ComplaintDate",
+        //     //     required: true,
+        //     //     validation:{
+        //     //       max: "currentDate"
+        //     //     },
+        //     //     error: "CORE_COMMON_REQUIRED_ERRMSG"
+        //     //   },
+        //     // },
+        //     {
+        //       type: "component",
+        //       isMandatory: true,
+        //       component: "PGRBoundaryComponent",
+        //       key: "SelectedBoundary",
+        //       label: "Boundary",
+        //       populators: {
+        //         name: "SelectedBoundary",
+        //       },
+        //     }
+        //   ],
+        // },
 
         {
           head: "CS_COMPLAINT_LOCATION_DETAILS",
@@ -104,7 +152,7 @@ export const CreateComplaintConfig = {
                 error: "CORE_COMMON_REQUIRED_ERRMSG",
               },
             },*/
-          {
+            {
               "key": "boundaryComponent",
               "type": "boundary",
               "inline": false,
@@ -139,7 +187,6 @@ export const CreateComplaintConfig = {
           ],
         },
 
-
         {
           head: "CS_COMPLAINT_DETAILS_ADDITIONAL_DETAILS",
           body: [
@@ -160,23 +207,6 @@ export const CreateComplaintConfig = {
             },
           ],
         },
-        {
-  "head": "CS_ADDCOMPLAINT_UPLOAD_PHOTO",
-  "body": [
-    {
-      "type": "component",
-      "isMandatory": false,
-      "component": "SelectImages",
-      "key": "ComplaintImagesPoint",
-      "label": "CS_ADDCOMPLAINT_UPLOAD_PHOTO_TEXT",
-      "populators": {
-        "name": "ComplaintImagesPoint"
-      }
-    },
-
-  ]
-
-},
 
       ],
     }

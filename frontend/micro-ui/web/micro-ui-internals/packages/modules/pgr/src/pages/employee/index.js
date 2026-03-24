@@ -47,12 +47,12 @@ const EmployeeApp = ({ path, stateCode, userType, tenants }) => {
                 show: true,
               },
               {
-                internalLink: `/${window?.contextPath}/employee/pgr/create-complaint`,
+                internalLink: `/${window?.contextPath}/employee/pgr/complaint/create`,
                 content: t("ACTION_TEST_CREATE_COMPLAINT"),
-                show: location.pathname.includes("create-complaint"),
+                show: location.pathname.includes("complaint/create"),
               },
               {
-                internalLink: `/${window?.contextPath}/employee/pgr/inbox-v2`,
+                internalLink: `/${window?.contextPath}/employee/pgr/inbox`,
                 content: t("PGR_INBOX"),
                 show: location.pathname.includes("inbox"),
               },
@@ -89,7 +89,7 @@ const EmployeeApp = ({ path, stateCode, userType, tenants }) => {
 
         {/* Route for Complaint Search Inbox */}
         <PrivateRoute
-          path={`${path}/inbox-v2`}
+          path={`${path}/inbox`}
           component={() => <PGRSearchInbox />}
         />
 

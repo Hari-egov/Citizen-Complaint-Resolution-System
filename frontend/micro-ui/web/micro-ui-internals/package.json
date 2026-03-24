@@ -1,3 +1,4 @@
+
 {
   "name": "egovernments",
   "version": "0.2.0",
@@ -11,11 +12,11 @@
   "license": "MIT",
   "private": true,
   "engines": {
-    "node": ">=14"
+    "node": "14"
   },
   "scripts": {
     "start": "run-s build start:dev",
-    "sprint": "run-s start:script",
+    "sprint": "SKIP_PREFLIGHT_CHECK=true run-s start:script",
     "start:dev": "run-p dev:**",
     "start:script": "./scripts/create.sh",
     "dev:css": "cd packages/css && yarn start",
@@ -53,7 +54,7 @@
     "*.{js,css,md}": "prettier --write"
   },
   "dependencies": {
-    "@egovernments/digit-ui-libraries": "1.9.3",
+    "@egovernments/digit-ui-libraries": "1.9.4",
     "@egovernments/digit-ui-components": "0.2.0-beta.45",
     "@egovernments/digit-ui-react-components": "1.8.21",
     "ajv": "8.12.0",
