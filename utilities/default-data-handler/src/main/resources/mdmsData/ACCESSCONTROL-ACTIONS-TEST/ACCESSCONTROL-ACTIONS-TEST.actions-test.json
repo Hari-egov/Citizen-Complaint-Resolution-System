@@ -759,7 +759,7 @@
     "queryParams": "",
     "serviceCode": "PGR",
     "parentModule": "rainmaker-pgr",
-    "navigationURL": "/digit-ui/employee/pgr/inbox-v2",
+    "navigationURL": "/digit-ui/employee/pgr/inbox",
     "lastModifiedBy": null,
     "lastModifiedDate": null
   },
@@ -779,7 +779,7 @@
     "queryParams": "",
     "serviceCode": "PGR",
     "parentModule": "rainmaker-pgr",
-    "navigationURL": "/digit-ui/employee/pgr/create-complaint",
+    "navigationURL": "/digit-ui/employee/pgr/complaint/create",
     "lastModifiedBy": null,
     "lastModifiedDate": null
   },

@@ -432,7 +432,7 @@
 					},
 					{
 						"key": "referer",
-						"value": "https://pgr-demo.digit.org/digit-ui/employee/pgr/create-complaint"
+						"value": "https://pgr-demo.digit.org/digit-ui/employee/pgr/complaint/create"
 					},
 					{
 						"key": "sec-ch-ua",
