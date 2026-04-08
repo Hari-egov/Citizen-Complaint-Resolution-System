@@ -52,7 +52,7 @@ const PGRSearchInboxConfig = () => {
                     defaultValues: {
                         complaintNumber: "",
                         mobileNumber: "",
-                        range:null
+                        range: null
 
                     },
                     fields: [
@@ -67,7 +67,7 @@ const PGRSearchInboxConfig = () => {
                                 validation: { pattern: "PG-PGR-\d{4}-\d{2}-\d{2}-\d{6}", minlength: 2 }
                             },
                         },
-                          {
+                        {
                             label: "CS_COMMON_MOBILE_NO",
                             type: "text",
                             isMandatory: false,
@@ -169,7 +169,7 @@ const PGRSearchInboxConfig = () => {
                         },
                         status: null,
                         complaintType: null,
-                        serviceCode:null,
+                        serviceCode: null,
 
                     },
                     fields: [

@@ -1571,57 +1571,82 @@ export const UICustomizations = {
   },
   PGRInboxConfig: {
     preProcess: (data) => {
-      console.log("*** Log ===> ", data);
-      data.body.inbox.tenantId = Digit.ULBService.getCurrentTenantId();
-      data.body.inbox.processSearchCriteria.tenantId = Digit.ULBService.getCurrentTenantId();
-      // delete data.body.inbox.moduleSearchCriteria.assignedToMe
-      // delete data.body.inbox.moduleSearchCriteria.assignee
-      delete data.body.inbox.sortOrder;
+      // Deep clone to avoid mutating original state
+      const clonedData = _.cloneDeep(data);
 
-      const requestDate = data?.body?.inbox?.moduleSearchCriteria?.range?.requestDate;
+      clonedData.body.inbox.tenantId = Digit.ULBService.getCurrentTenantId();
+      clonedData.body.inbox.processSearchCriteria.tenantId = Digit.ULBService.getCurrentTenantId();
+
+      // Remove top-level sortOrder added by the table column sort (not required by backend).
+      delete clonedData.body.inbox.sortOrder;
+
+      // Manage limit and offset: ensure they are valid numbers with defaults
+      clonedData.body.inbox.limit = clonedData?.state?.tableForm?.limit || clonedData.body.inbox.limit || 10;
+      var _tableOffset = clonedData?.state?.tableForm?.offset;
+      var _bodyOffset = clonedData.body.inbox.offset;
+      clonedData.body.inbox.offset = _tableOffset != null ? _tableOffset : (_bodyOffset != null ? _bodyOffset : 0);
+
+      // Extract search fields from state rather than body to avoid stale data during 'Clear Search'
+      const searchForm = clonedData?.state?.searchForm || {};
+
+      if (searchForm.complaintNumber) {
+        clonedData.body.inbox.moduleSearchCriteria.complaintNumber = searchForm.complaintNumber;
+      } else {
+        delete clonedData.body.inbox.moduleSearchCriteria.complaintNumber;
+      }
+
+      if (searchForm.mobileNumber) {
+        clonedData.body.inbox.moduleSearchCriteria.mobileNumber = searchForm.mobileNumber;
+      } else {
+        delete clonedData.body.inbox.moduleSearchCriteria.mobileNumber;
+      }
+
+      // Handle date range from search form directly
+      const requestDate = searchForm?.range?.requestDate;
 
       if (requestDate?.startDate && requestDate?.endDate) {
         const fromDate = new Date(requestDate.startDate).getTime();
         const toDate = new Date(requestDate.endDate).getTime();
 
-        data.body.inbox.moduleSearchCriteria.fromDate = fromDate;
-        data.body.inbox.moduleSearchCriteria.toDate = toDate;
+        clonedData.body.inbox.moduleSearchCriteria.fromDate = fromDate;
+        clonedData.body.inbox.moduleSearchCriteria.toDate = toDate;
       }
       else {
-        delete data.body.inbox.moduleSearchCriteria.fromDate;
-        delete data.body.inbox.moduleSearchCriteria.toDate;
+        delete clonedData.body.inbox.moduleSearchCriteria.fromDate;
+        delete clonedData.body.inbox.moduleSearchCriteria.toDate;
       }
 
       // Always delete the full range object if it exists
-      delete data.body.inbox.moduleSearchCriteria.range;
+      delete clonedData.body.inbox.moduleSearchCriteria.range;
 
-      // deleting them for now(assignee-> need clarity from pintu,ward-> static for now,not implemented BE side)
-      const assignee = _.clone(data.body.inbox.moduleSearchCriteria.assignedToMe);
-      delete data.body.inbox.moduleSearchCriteria.assignee;
-      delete data.body.inbox.moduleSearchCriteria.assignedToMe;
-      
+      // Handle assignedToMe from filter form state (not from body to avoid interference with search)
+      const assignee = _.clone(clonedData?.state?.filterForm?.assignedToMe);
 
-      if (assignee?.code === "ASSIGNED_TO_ME") {
-        data.body.inbox.moduleSearchCriteria.assignee = Digit.UserService.getUser().info.uuid;
+      // Delete from body to prevent sending wrong field names to backend
+      delete clonedData.body.inbox.moduleSearchCriteria.assignee;
+      delete clonedData.body.inbox.moduleSearchCriteria.assignedToMe;
+
+      if (assignee && assignee.code === "ASSIGNED_TO_ME") {
+        clonedData.body.inbox.moduleSearchCriteria.assignee = Digit.UserService.getUser().info.uuid;
       }
-      if (assignee?.code === "ASSIGNED_TO_ALL") {
-      delete data.body.inbox.moduleSearchCriteria.assignee;
+      if (assignee && assignee.code === "ASSIGNED_TO_ALL") {
+        delete clonedData.body.inbox.moduleSearchCriteria.assignee;
       }
 
+      // --- Handle serviceCode from filter form ---
+      const serviceCodeFromFilter = _.clone(clonedData?.state?.filterForm?.serviceCode);
+      const serviceCodes = serviceCodeFromFilter?.serviceCode;
 
-
-      // --- Handle serviceCode ---
-      let serviceCodes = _.clone(data.body.inbox.moduleSearchCriteria.serviceCode || null);
-      serviceCodes = serviceCodes?.serviceCode;
-      delete data.body.inbox.moduleSearchCriteria.serviceCode;
-      if (serviceCodes != null) {
-        data.body.inbox.moduleSearchCriteria.complaintType = serviceCodes;
+      delete clonedData.body.inbox.moduleSearchCriteria.serviceCode;
+      if (serviceCodes != null && serviceCodes !== "") {
+        clonedData.body.inbox.moduleSearchCriteria.complaintType = serviceCodes;
       } else {
-        delete data.body.inbox.moduleSearchCriteria.serviceCode;
+        delete clonedData.body.inbox.moduleSearchCriteria.complaintType;
       }
 
-      delete data.body.inbox.moduleSearchCriteria.locality;
-      let rawLocality = data?.state?.filterForm?.locality;
+      // --- Handle locality from filter form ---
+      delete clonedData.body.inbox.moduleSearchCriteria.locality;
+      let rawLocality = clonedData?.state?.filterForm?.locality;
       let localityArray = [];
       if (rawLocality) {
         if (Array.isArray(rawLocality)) {
@@ -1632,23 +1657,22 @@ export const UICustomizations = {
       }
 
       if (localityArray.length > 0) {
-        delete data.body.inbox.moduleSearchCriteria.locality;
-        data.body.inbox.moduleSearchCriteria.area = localityArray;
+        clonedData.body.inbox.moduleSearchCriteria.area = localityArray;
       } else {
-        delete data.body.inbox.moduleSearchCriteria.area;
+        delete clonedData.body.inbox.moduleSearchCriteria.area;
       }
 
-      // --- Handle status from state.filterForm ---
-      const rawStatuses = _.clone(data?.state?.filterForm?.status || {});
+      // --- Handle status from filter form ---
+      const rawStatuses = _.clone(clonedData?.state?.filterForm?.status || {});
       const statuses = Object.keys(rawStatuses).filter((key) => rawStatuses[key] === true);
 
       if (statuses.length > 0) {
-        data.body.inbox.moduleSearchCriteria.status = statuses;
+        clonedData.body.inbox.moduleSearchCriteria.status = statuses;
       } else {
-        delete data.body.inbox.moduleSearchCriteria.status;
+        delete clonedData.body.inbox.moduleSearchCriteria.status;
       }
 
-      return data;
+      return clonedData;
     },
     additionalCustomizations: (row, key, column, value, t, searchResult) => {
       switch (key) {
@@ -2575,3 +2599,9 @@ export const UICustomizations = {
     },
   },
 };
+
+// CRITICAL FIX: The MDMS Database in Production identifies this module as "SearchInboxConfig",
+// whereas the local PGRSearchInboxConfig.js defines it as "PGRInboxConfig". 
+// This explicitly forces the system to execute the same fixes for both aliases.
+UICustomizations.SearchInboxConfig = UICustomizations.PGRInboxConfig;
+UICustomizations.PGRSearchInboxConfig = UICustomizations.PGRInboxConfig;
